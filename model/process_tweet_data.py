@@ -1,10 +1,17 @@
+import traceback
 import glob
 import pickle
 
 from collections import Counter
 
-import pandas as pd
 import numpy as np
+import pandas as pd
+
+from tqdm import tqdm
+
+import spacy
+
+nlp = spacy.load('en')
 
 unk_word = '<UNK>'
 start_word = '<START>'
@@ -13,7 +20,14 @@ tweets = pd.concat(pd.read_csv(f, dtype={'id': np.int64}) for f in glob.glob('..
 
 texts = tweets.text.values
 
-c = Counter(tok for text in texts for tok in text.split())
+c = Counter()
+for text in tqdm(texts):
+	try:
+		doc = nlp(text)
+		c.update(tok.text for tok in doc)
+	except AssertionError:
+		print('parse error:', text)
+		# traceback.print_exc()
 
 vocab = [start_word] + [w for w, n in c.most_common() if n > 50] + [unk_word]
 
