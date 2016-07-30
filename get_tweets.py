@@ -2,20 +2,6 @@ import tweepy
 import itertools
 import csv
 
-max_tweet_count = 200
-
-def get_tweets_by_page(api, screen_name):
-	tweets = api.user_timeline(screen_name=screen_name, count=max_tweet_count)
-	yield tweets
-	while len(tweets) > 0:
-		tweets = api.user_timeline(screen_name=screen_name, count=max_tweet_count, max_id=tweets.max_id)
-		yield tweets
-
-
-def get_tweets(api, screen_name):
-	return itertools.chain.from_iterable(get_tweets_by_page(api, screen_name))
-
-
 if __name__ == "__main__":
 	import sys
 
@@ -31,8 +17,8 @@ if __name__ == "__main__":
 	api = tweepy.API(auth)
 	screen_name = sys.argv[1]
 
-	tweets = get_tweets(api, screen_name)
-	with open('%s_tweets.csv' % screen_name, 'w') as f:
+	tweets = tweepy.Cursor(api.user_timeline, screen_name=screen_name, wait_on_rate_limit=True, wait_on_rate_limit_notify=True, count=200).items()
+	with open('%s.csv' % screen_name, 'w') as f:
 		writer = csv.writer(f)
 		writer.writerow(['id', 'text'])
 		for tweet in tweets:
