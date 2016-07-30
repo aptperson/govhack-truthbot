@@ -8,8 +8,8 @@ import tflearn
 
 num_docs = 10000
 
-doc_embedding_size = 50
-word_embedding_size = 100
+doc_embedding_size = 20
+word_embedding_size = 50
 
 def load_data():
 	with open('tweet_vocab.pkl', 'rb') as f:
@@ -66,3 +66,13 @@ def train_model(model, docs, contexts, targets, num_words):
 
     Y = tflearn.data_utils.to_categorical(targets, num_words)
     model.fit([X1, X2], Y, n_epoch=20, show_metric=True, run_id="embedding_model")
+
+
+if __name__ == '__main__':
+	tweet_df, vocab = load_data()
+	embedding_index_map = tweet_df[['id', 'text']]
+	embedding_index_map.to_pickle('embedding_index_map.pkl')
+	docs, contexts, targets = prepare_contexts(tweet_df)
+	model = build_model(num_words = len(vocab), num_docs = len(tweet_df))
+	train_model(model, docs, contexts, targets, num_words = len(vocab))
+	model.save('embedding_model.cpkt')
