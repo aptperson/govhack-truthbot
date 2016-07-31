@@ -33,6 +33,8 @@ for tweets in tweets_with_data.values():
 
         for article in tweet['articles']:
             article['headline'] = article['headline'].replace('Fact Check zombie: ', '')
+            article['headline'] = article['headline'].replace('Fact Check zombies: ', '')
+            article['headline'] = article['headline'].replace('Fact Check Zombie: ', '')
             article['score'] = '%.2f' % article['score']
             link = article['article_url']
             article_datasets += datasets.get(link, [])
