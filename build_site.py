@@ -2,6 +2,7 @@ import os
 import pandas
 import pystache
 import pickle
+from tqdm import tqdm
 
 with open('list.html.mustache') as f:
     list_template = f.read()
@@ -18,12 +19,30 @@ with open('friends_info.pkl', 'rb') as f:
 with open('tweets_with_data.pkl', 'rb') as f:
     tweets_with_data = pickle.load(f)
 
+with open('datasets.pickle', 'rb') as f:
+    datasets = pickle.load(f)
+
+datasets = {x.link: x.datasets for x in datasets.itertuples()}
+
 for tweets in tweets_with_data.values():
     for tweet in tweets:
         tweet['articles'] = tweet['articles'][:5]
         tweet['top_article'] = tweet['articles'][0]
+
+        article_datasets = []
+
         for article in tweet['articles']:
             article['score'] = '%.2f' % article['score']
+            link = article['article_url']
+            article_datasets += datasets.get(link, [])
+
+        tweet['datasets'] = article_datasets
+
+        tweet['has_datasets'] = len(tweet['datasets']) > 0
+        # tweet['datasets'] = [
+        #     {'name': 'foo', 'url': 'a.com'},
+        #     {'name': 'bar', 'url': 'b.com'}
+        # ]
 
 
 def add_url(poli):
@@ -44,7 +63,7 @@ ensure_dir('site/poli')
 with open('site/list.html', 'w') as f:
     f.write(list_page)
 
-for poli in poli_list:
+for poli in tqdm(poli_list):
     with open('site/poli/%s.html' % poli['screen_name'], 'w') as f:
         poli_page = pystache.render(poli_template, {
             'poli': poli,
