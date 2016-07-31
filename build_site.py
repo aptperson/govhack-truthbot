@@ -21,6 +21,7 @@ with open('tweets_with_data.pkl', 'rb') as f:
 for tweets in tweets_with_data.values():
     for tweet in tweets:
         tweet['articles'] = tweet['articles'][:5]
+        tweet['top_article'] = tweet['articles'][0]
         for article in tweet['articles']:
             article['score'] = '%.2f' % article['score']
 
