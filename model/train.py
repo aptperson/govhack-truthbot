@@ -6,12 +6,10 @@ import pandas as pd
 import tensorflow as tf
 import tflearn
 
-num_docs = 10000
-
 doc_embedding_size = 100
 word_embedding_size = 100
 
-def load_data(num_docs=num_docs):
+def load_data():
 	with open('vocab.pkl', 'rb') as f:
 		vocab = pickle.load(f)
 
@@ -107,13 +105,13 @@ def train_nce_model(trainer, X1, X2, Y, docs, contexts, targets, num_words):
 
 
 if __name__ == '__main__':
-	tweet_df, vocab = load_data()
-	docs, contexts, targets = prepare_contexts(tweet_df)
+	doc_data, vocab = load_data()
+	docs, contexts, targets = prepare_contexts(doc_data)
 
 	# model = build_model(num_words=len(vocab), num_docs=len(tweet_df))
 	# train_model(model, docs, contexts, targets, num_words=len(vocab))
 	# model.save('embedding_model')
 
-	trainer, X1, X2, Y = build_nce_model(num_words=len(vocab), num_docs=len(tweet_df))
+	trainer, X1, X2, Y = build_nce_model(num_words=len(vocab), num_docs=len(doc_data))
 	train_nce_model(trainer, X1, X2, Y, docs, contexts, targets, num_words=len(vocab))
 	trainer.save('embedding_model_nce')

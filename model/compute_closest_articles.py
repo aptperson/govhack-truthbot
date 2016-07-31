@@ -6,14 +6,14 @@ import tensorflow as tf
 
 import train
 
-embedding_index_map = pd.read_pickle('embedding_index_map.pkl')
+doc_data = pd.read_pickle('data_tokenized.pkl')
 
-with open('tweet_vocab.pkl', 'rb') as f:
-	vocab = pickle.load(f)
-	vocab = np.array(vocab)
+with open('vocab.pkl', 'rb') as f:
+    vocab = pickle.load(f)
+    vocab = np.array(vocab)
 
-trainer, X1, X2, Y = train.build_nce_model(num_words = len(vocab), num_docs = len(embedding_index_map))
-trainer.restore('nce_test_model-46674')
+trainer, X1, X2, Y = train.build_nce_model(num_words = len(vocab), num_docs = len(doc_data))
+trainer.restore('embedding_model_nce-51230')
 
 e1, = trainer.graph.get_collection('layer_variables/Embedding/')
 e2, = trainer.graph.get_collection('layer_variables/Embedding_1/')
@@ -23,16 +23,23 @@ word_embedding = e2.eval(session=trainer.session)
 
 doc_embedding_norm = doc_embedding / np.linalg.norm(doc_embedding, axis=1, keepdims=True)
 
-# for doc_idx in range(len(embedding_index_map))
-for doc_idx in range(10):
-	doc = doc_embedding_norm[doc_idx]
+news_data = doc_data[doc_data.document_kind == 'news']
+news_embedding = doc_embedding_norm[news_data.index]
 
-	print('---------------------------')
+tweet_data = doc_data[doc_data.document_kind == 'twitter']
 
-	dist = np.sum(doc * doc_embedding_norm, axis=1)
-	dist_sort_idx = np.argsort(dist)[::-1]
-	for i in dist_sort_idx[:5]:
-		t = embedding_index_map.iloc[i].text
-		d = dist[i]
-		print('---', np.round(d, 2))
-		print(t)
+for doc_idx in tweet_data.index:
+    doc = doc_embedding_norm[doc_idx]
+    print('---------------------------')
+    print(doc_data.iloc[doc_idx].text)
+    print('---------------------------')
+
+    dist = np.sum(doc * news_embedding, axis=1)
+    dist_sort_idx = np.argsort(dist)[::-1]
+    for i in dist_sort_idx[:25]:
+        t = news_data.iloc[i].headline
+        d = dist[i]
+        print('---', np.round(d, 2))
+        print(t)
+
+    print('\n\n\n')
