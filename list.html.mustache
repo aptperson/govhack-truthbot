@@ -30,6 +30,7 @@
             <div class="row center-xs">
                 <div class="col-xs-12">
                     <h1>Index of Politicians</h1>
+                    <p><em></em></p>
                 </div>
             </div>
         </header>
@@ -41,12 +42,12 @@
           	<!-- Politician -->
 						{{#polis}}
 						<div class="col-xs-4 col-sm-1">
-						  <a href="/govhack/2016/truthbot/site/poli/{{name}}.html">
+						  <a href="/govhack/2016/truthbot/site/poli/{{screen_name}}.html">
 						    <img class="ProfileAvatar-image ProfileSm" src="{{profile_image_large_url}}" alt="{{name}}">
 						  </a>
 						</div>
 						<div class="col-xs-8 col-sm-5 Poli-contact">
-						    <h3><a href="/govhack/2016/truthbot/site/poli/{{name}}.html">{{name}}</a></h3>
+						    <h3><a href="/govhack/2016/truthbot/site/poli/{{screen_name}}.html">{{name}}</a></h3>
 						    <a href="https://twitter.com/{{screen_name}}" target="_blank"><small>@{{screen_name}}</small></a>
 						</div>
 						{{/polis}}
