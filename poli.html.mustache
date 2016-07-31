@@ -41,15 +41,6 @@
         </header>
 
         {{#tweets}}
-          text:{{text}}
-          {{#articles}}
-            score:{{score}}
-            headline:{{headline}}
-            article_url:{{article_url}}
-          {{/articles}}
-        {{/tweets}}
-      {{/poli}}
-
         <section>
             <div class="row center-xs start-sm top-sm">
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1">
@@ -66,19 +57,14 @@
                               <div class="col-xs-9 col-sm-10"><label><small>TRUTHBOT MATCHES:</small></label></div>
                               <div class="col-xs-3 col-sm-2 text-right"><label><small>SCORE:</small></label></div>
                             </div>
+                            {{#articles}}
                             <div class="row start-xs start-sm">
-                              <div class="col-xs-9 col-sm-10"><a href="http://www.abc.net.au/news/2016-06-30/fact-checking-the-election-2016/7536484" target="_blank">Fact checking the election: How do the records of the Coalition and Labor compare?</a></div>
-                              <div class="col-xs-3 col-sm-2 text-right">0.95</div>
+                              <div class="col-xs-9 col-sm-10"><a href="{{article_url}}" target="_blank">{{headline}}</a></div>
+                              <div class="col-xs-3 col-sm-2 text-right">{{score}}</div>
                             </div>
-                            <div class="row start-xs start-sm">
-                              <div class="col-xs-9 col-sm-10"><a href="http://www.abc.net.au/news/2016-07-01/fact-check-do-the-greens-plan-to-see-sydney-without-an-airport/7493190" target="_blank">Fact check: Do the Greens want Sydney to be without an airport?</a></div>
-                              <div class="col-xs-3 col-sm-2 text-right">0.79</div>
-                            </div>
-                            <div class="row start-xs start-sm">
-                              <div class="col-xs-9 col-sm-10"><a href="http://www.abc.net.au/news/2016-06-27/fact-check-coalitions-record-on-refugees/7541522" target="_blank">Fact check: Why Peter Dutton's claims on the Coalition's record on refugees get mixed verdicts</a></div>
-                              <div class="col-xs-3 col-sm-2 text-right">0.11</div>
-                            </div>
+                            {{/articles}}
                           </div>
+                          <!--
                           <div class="keyword-matches">
                             <div class="row start-xs start-sm">
                               <div class="col-xs-12">
@@ -88,6 +74,7 @@
                               </div>
                             </div>
                           </div>
+                          -->
                         </div>
                     </div>
                     <div class="row center-xs end-sm top-sm tb-tweet">
@@ -101,8 +88,8 @@
                 </div>
             </div>
         </section>
-
-      
+        {{/tweets}}
+      {{/poli}}
 
       <footer>
           <div class="row center-xs">
