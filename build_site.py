@@ -18,6 +18,13 @@ with open('friends_info.pkl', 'rb') as f:
 with open('tweets_with_data.pkl', 'rb') as f:
     tweets_with_data = pickle.load(f)
 
+for tweets in tweets_with_data.values():
+    for tweet in tweets:
+        tweet['articles'] = tweet['articles'][:5]
+        for article in tweet['articles']:
+            article['score'] = '%.2f' % article['score']
+
+
 def add_url(poli):
     poli['url'] = 'poli/%s.html' % poli['screen_name']
     return poli
