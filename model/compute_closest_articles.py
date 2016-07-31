@@ -4,7 +4,11 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
+from tqdm import tqdm
 import train
+
+num_matches = 20
+
 
 doc_data = pd.read_pickle('data_tokenized.pkl')
 
@@ -28,18 +32,34 @@ news_embedding = doc_embedding_norm[news_data.index]
 
 tweet_data = doc_data[doc_data.document_kind == 'twitter']
 
-for doc_idx in tweet_data.index:
-    doc = doc_embedding_norm[doc_idx]
-    print('---------------------------')
-    print(doc_data.iloc[doc_idx].text)
-    print('---------------------------')
 
-    dist = np.sum(doc * news_embedding, axis=1)
-    dist_sort_idx = np.argsort(dist)[::-1]
-    for i in dist_sort_idx[:25]:
-        t = news_data.iloc[i].headline
-        d = dist[i]
-        print('---', np.round(d, 2))
-        print(t)
+similarity_data = []
 
-    print('\n\n\n')
+for doc_idx in tqdm(tweet_data.index):
+    doc_vector = doc_embedding_norm[doc_idx]
+
+    similarity = np.sum(doc_vector * news_embedding, axis=1)
+    similarity_sort_idx = np.argsort(similarity)[::-1]
+
+    articles = [(similarity[i], news_data.iloc[i]) for i in similarity_sort_idx[:num_matches]]
+    similarity_data.append((tweet_data.loc[doc_idx], articles))
+
+# with open('similarity_data.pkl', 'wb') as f:
+#     pickle.dump(similarity_data, f)
+
+tweets_by_screen_name = {}
+for tweet, articles_and_sim in similarity_data:
+    screen_name = tweet.twitter_screen_name
+    tweets_by_screen_name[screen_name] = tweets_by_screen_name.get(tweet.twitter_screen_name,[])
+    tweets_by_screen_name[screen_name].append({
+        'text': tweet.text,
+        'articles': [{
+            'score': sim,
+            'headline': article.headline,
+            'article_url': article.article_url,
+            } for sim, article in articles_and_sim
+        ]
+    })
+
+with open('../tweets_with_data.pkl', 'wb') as f:
+    pickle.dump(tweets_by_screen_name, f)

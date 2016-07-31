@@ -39,6 +39,15 @@
             </div>
           </div>
         </header>
+
+        {{#tweets}}
+          text:{{text}}
+          {{#articles}}
+            score:{{score}}
+            headline:{{headline}}
+            article_url:{{article_url}}
+          {{/articles}}
+        {{/tweets}}
       {{/poli}}
 
         <section>
