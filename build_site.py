@@ -34,6 +34,6 @@ with open('site/list.html', 'w') as f:
 	f.write(list_page)
 
 for poli in poli_list:
-	with open('site/poli/%s.html' % poli['name'], 'w') as f:
+	with open('site/poli/%s.html' % poli['screen_name'], 'w') as f:
 		poli_page = pystache.render(poli_template, {'poli': poli})
 		f.write(poli_page)
