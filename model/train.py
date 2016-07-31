@@ -12,13 +12,10 @@ doc_embedding_size = 100
 word_embedding_size = 100
 
 def load_data(num_docs=num_docs):
-	with open('tweet_vocab.pkl', 'rb') as f:
+	with open('vocab.pkl', 'rb') as f:
 		vocab = pickle.load(f)
 
-	tweet_df = pd.read_pickle('tweet_data_tokenized.pkl')
-	tweet_df = tweet_df.sort_values(by='id', ascending=False)
-	tweet_df = tweet_df.head(num_docs)
-	tweet_df = tweet_df.reset_index(drop=True)
+	tweet_df = pd.read_pickle('data_tokenized.pkl')
 
 	return tweet_df, vocab
 
@@ -30,16 +27,16 @@ def build_context(v, context_size=3):
         yield v[i:i+k],v[i+k]
 
 
-def prepare_contexts(tweet_df):
-	data = [(tweet_id, context, target) for tweet_id, words in tweet_df.tokenized.iteritems() for context, target in build_context(words)]
+def prepare_contexts(df):
+    data = [(doc_id, context, target) for doc_id, word_ids in df.tokenized.iteritems() for context, target in build_context(word_ids)]
 
-	np.random.shuffle(data)
+    np.random.shuffle(data)
 
-	docs     = np.array([x[0] for x in data])
-	contexts = np.array([x[1] for x in data])
-	targets  = np.array([x[2] for x in data])
+    docs     = np.array([x[0] for x in data])
+    contexts = np.array([x[1] for x in data])
+    targets  = np.array([x[2] for x in data])
 
-	return docs, contexts, targets
+    return docs, contexts, targets
 
 
 def build_model(num_words, num_docs,
@@ -98,7 +95,7 @@ def build_nce_model(num_words, num_docs, doc_embedding_size=doc_embedding_size, 
     trainop = tflearn.TrainOp(loss=loss, optimizer=optimizer,
                           metric=None, batch_size=32)
 
-    trainer = tflearn.Trainer(train_ops=trainop, tensorboard_verbose=0, checkpoint_path='nce_test_model')
+    trainer = tflearn.Trainer(train_ops=trainop, tensorboard_verbose=0, checkpoint_path='embedding_model_nce')
     return trainer, X1, X2, Y
 
 
@@ -106,13 +103,11 @@ def train_nce_model(trainer, X1, X2, Y, docs, contexts, targets, num_words):
 	X1_data = docs[:,np.newaxis]
 	X2_data = contexts
 	Y_data  = targets[:,np.newaxis]
-	trainer.fit(feed_dicts={X1: X1_data, X2: X2_data, Y: Y_data}, n_epoch=20, show_metric=False, run_id="nce_test_model")
+	trainer.fit(feed_dicts={X1: X1_data, X2: X2_data, Y: Y_data}, n_epoch=20, show_metric=False, run_id="embedding_model_nce")
 
 
 if __name__ == '__main__':
 	tweet_df, vocab = load_data()
-	embedding_index_map = tweet_df[['id', 'text']]
-	embedding_index_map.to_pickle('embedding_index_map.pkl')
 	docs, contexts, targets = prepare_contexts(tweet_df)
 
 	# model = build_model(num_words=len(vocab), num_docs=len(tweet_df))
@@ -121,4 +116,4 @@ if __name__ == '__main__':
 
 	trainer, X1, X2, Y = build_nce_model(num_words=len(vocab), num_docs=len(tweet_df))
 	train_nce_model(trainer, X1, X2, Y, docs, contexts, targets, num_words=len(vocab))
-	trainer.save('nce_test_model')
+	trainer.save('embedding_model_nce')
